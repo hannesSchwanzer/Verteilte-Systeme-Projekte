@@ -1,0 +1,33 @@
+#
+# Setup for hamster_mqtt test suite
+#
+set tool "hamster_mqtt"
+puts " Set up for $tool tests"
+if { $env(HAMSTERID) == "" } {
+	set hamster_uuid "42424242"
+} else {
+	set hamster_uuid $env(HAMSTERID)
+}
+puts "Use HamsterID: $hamster_uuid"
+
+if { $env(EXTBROKER) == "Yes" } {
+	# use external MQTT broker
+	set host "hamsteriot.vs.cs.hs-rm.de"
+} else {
+	# use local MQTT broker
+	# start local MQTT broker
+#	cd configs
+#	spawn mosquitto -c mosquitto.conf
+#	set broker_id $spawn_id
+	set host "localhost"
+#	cd ..
+}
+
+set exp_internal 1
+
+# make sure we find the shared library
+set ::env(LD_LIBRARY_PATH) "./lib"
+
+
+# 2 seconds timeout should be OK...
+set timeout 2

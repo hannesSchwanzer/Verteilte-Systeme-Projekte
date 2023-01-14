@@ -1,0 +1,24 @@
+1655332953: mosquitto version 2.0.11 starting
+1655332953: Config loaded from mosquitto.conf.
+1655332953: Opening ipv4 listen socket on port 8883.
+1655332953: Opening ipv6 listen socket on port 8883.
+1655332953: Opening ipv4 listen socket on port 8884.
+1655332953: Opening ipv6 listen socket on port 8884.
+1655332953: Opening ipv4 listen socket on port 1883.
+1655332953: Error: Address already in use
+1655332974: mosquitto version 2.0.11 starting
+1655332974: Config loaded from mosquitto.conf.
+1655332974: Opening ipv4 listen socket on port 8883.
+1655332974: Opening ipv6 listen socket on port 8883.
+1655332974: Opening ipv4 listen socket on port 8884.
+1655332974: Opening ipv6 listen socket on port 8884.
+1655332974: Opening ipv4 listen socket on port 1883.
+1655332974: Error: Address already in use
+1655332986: mosquitto version 2.0.11 starting
+1655332986: Config loaded from mosquitto.conf.
+1655332986: Opening ipv4 listen socket on port 8883.
+1655332986: Opening ipv6 listen socket on port 8883.
+1655332986: Opening ipv4 listen socket on port 8884.
+1655332986: Opening ipv6 listen socket on port 8884.
+1655332986: Opening ipv4 listen socket on port 1883.
+1655332986: Error: Address already in use

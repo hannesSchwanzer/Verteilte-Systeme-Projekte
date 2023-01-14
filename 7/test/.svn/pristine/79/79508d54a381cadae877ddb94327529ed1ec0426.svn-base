@@ -1,0 +1,70 @@
+#
+# Test subsrive to /pension/room/{A,B,C,D} topics:
+#
+# Run program, publish manually, see if program responds
+#
+set test_name "subscribe room"
+
+
+# start program with given ID
+# puts "calling: ./$tool -i $hamster_uuid -s $host"
+spawn ./$tool -i $hamster_uuid -s $host
+set hamster_id $spawn_id
+
+# wait a sec before expecting response
+after 1000
+
+set spawn_id $hamster_id
+expect {
+	timeout {
+		fail "$test_name: timeout waiting for menu\n"
+	}	
+	eof {
+		fail "$test_name: unexpected EOF waiting for menu\n"
+	}
+	"Commands:" {
+			pass "$test_name: Menu showing up\n"
+		}
+	default {
+		fail "$test_name: unexpected response waiting for $outputs\n"
+	}
+}
+
+
+set testdata {
+  {"A"      "A"  }
+  {"B"      "B"  }
+  {"C"      "C"  }
+  {"D"      "C"  }
+}
+
+foreach pattern $testdata {
+    set inputs [lindex $pattern 0]
+    set outputs [lindex $pattern 1]
+
+	# call mosquitto_pub to mimic the behaviour of the monitor program:
+	# puts "calling mosquitto_pub -h $host -t \"/pension/room/$inputs\" -u admin -m \"Currently in Room $inputs:\n$hamster_uuid\n\""
+	spawn mosquitto_pub -h $host -t "/pension/room/$inputs" -u admin -m "Currently in Room $inputs:\n$hamster_uuid\n"
+
+	after 500
+	set spawn_id $hamster_id
+	expect {
+		timeout {
+			fail "$test_name: timeout waiting for room change\n"
+		}
+		eof {
+			fail "$test_name: unexpected EOF waiting for room change\n"
+		}
+		"Currently in Room $inputs:\r\n$hamster_uuid" {
+				pass "$test_name: received: $expect_out(buffer)"
+		}
+		default {
+			fail "$test_name: unexpected response waiting for $outputs\n"
+		}
+	}
+}
+
+# send "q" to end the program
+set spawn_id $hamster_id
+send "q\n"
+wait

@@ -1,0 +1,76 @@
+#
+# Setup for hamster_server test suite
+#
+proc hamster_server_exit {} {}
+proc hamster_server_version {} {}
+
+# 1 second timeout should be OK...
+set timeout 1
+# default host IP
+set hostip "127.0.0.1"
+set port "4242"
+
+set tool "hamster_server"
+puts " Set up for $tool tests"
+
+proc dialog {  tool testdata } {
+
+	foreach pattern $testdata {
+		set cmd [lindex $pattern 0]
+		set prompt1 [lindex $pattern 1]
+		set name1 [lindex $pattern 2]
+		set prompt2 [lindex $pattern 3]
+		set name2 [lindex $pattern 4]
+		set prompt3 [lindex $pattern 5]
+		set name3 [lindex $pattern 6]
+		set prompt4 [lindex $pattern 7]
+		send $cmd
+		expect {
+			-re $prompt1 {
+				pass "$tool Command $cmd"
+			}
+			timeout {
+				fail "$tool Command $cmd timeout"
+			}
+			default {
+				fail "$tool Command $cmd expected $prompt1, got: $expect_out(buffer)"
+			}
+		}
+		send $name1
+		expect {
+			-re $prompt2 {
+				pass "$tool Command $cmd"
+			}
+			timeout {
+				fail "$tool Command $cmd timeout"
+			}
+			default {
+				fail "$tool Command $cmd expected $prompt2, got: $expect_out(buffer)"
+			}
+		}
+		send $name2
+		expect {
+			-re $prompt3 {
+				pass "$tool Command $cmd"
+			}
+			timeout {
+				fail "$tool Command $cmd timeout"
+			}
+			default {
+				fail "$tool Command $cmd expected $prompt3, got: $expect_out(buffer)"
+			}
+		}
+		send $name3
+		expect {
+			-re $prompt4 {
+				pass "$tool Command $cmd"
+			}
+			timeout {
+				fail "$tool Command $cmd timeout"
+			}
+			default {
+				fail "$tool Command $cmd expected $prompt4, got: $expect_out(buffer)"
+			}
+		}
+	}
+}

@@ -1,0 +1,51 @@
+#
+# Test publishing to /pension/hamster/ID/wheels topic:
+#
+# Entering "r", then wait for some time, then enter "s"
+# to the menu should deliver the wheel count:
+#
+set test_name "publish wheels"
+
+#puts "now starting:mosquitto_sub -h $host -t \"/pension/hamster/$hamster_uuid/wheels\" -u admin"
+#after 5000 
+
+# set up mosquitto_sub to listen to /pension/hamster/ID/wheels:
+spawn mosquitto_sub -h $host -t "/pension/hamster/$hamster_uuid/wheels" -u admin
+set wheels_id $spawn_id
+
+# start program with given ID
+spawn ./$tool -i $hamster_uuid -s $host
+set hamster_id $spawn_id
+
+# send "r" to get the hamster running
+send "r\n"
+
+# wait 10 seconds, then send "s" to stop the hamster
+after 10000 
+send "s\n"
+
+
+# read from mosquitto_sub
+set spawn_id $wheels_id
+expect {
+	timeout {
+		fail "$test_name: timeout\n"
+	}	
+	eof {
+		fail "$test_name: unexpected EOF\n"
+	}
+	-re "\[0-9]*\n" {
+	    set wheels -1
+		scan $expect_out(buffer) %d wheels
+		if {$wheels > 0} {
+			pass "$test_name: Wheels=$wheels\n"
+		} else {
+			fail "$test_name: Wheels=$wheels, should be > 0\n"
+		}
+	}
+}
+
+# send "q" to end the program
+set spawn_id $hamster_id
+send "q\n"
+wait

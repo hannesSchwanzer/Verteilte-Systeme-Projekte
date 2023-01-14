@@ -1,0 +1,92 @@
+#
+# Test normal use:
+#
+#
+set test_name "normal use"
+
+
+
+# start server specifying explicit host and port
+spawn ./$tool -h $hostip -p $port
+set server_id $spawn_id
+
+#wait a sec
+after 1000
+
+#
+# read away any stale output
+#
+set save_timeout $timeout
+set timeout 1
+set flushed 0
+while { $flushed < 1 } {
+	expect  {
+		timeout { 
+			incr flushed
+		}	
+		-re "\[^\r]*\r\n" {
+			continue
+		}
+		eof {
+			fail "$test_name: unexpected EOF while flushing\n"
+		}
+		default {
+			fail "$test_name: $expect_out(buffer) while flushing\n"
+		}
+	}
+}
+
+set timeout $save_timeout
+
+
+set save_timeout $timeout
+set timeout 2
+# now run CLI client with explicit port and host
+spawn java -jar ./tests/CLIClient.jar -h $hostip -p $port
+set cliclient_id $spawn_id
+
+# read from cli client -> should respod with a menu
+set spawn_id $cliclient_id
+
+expect  {
+	timeout {
+		fail "$test_name: timeout\n"
+	}	
+    Warning {
+        fail "$test_name: warning: $expect_out(buffer)"
+    }
+    # Check for any error messages
+    ERROR {
+        fail "$test_name: error: $expect_out(buffer)"
+    }
+
+	"Commands:" {
+		pass "$test_name\n"
+	}
+	"Connection error" {
+		fail "$test_name: error: $expect_out(buffer)"
+		exit 1
+	}
+	eof {
+		fail "$test_name: unexpected EOF\n"
+	}
+	default {
+		fail "$test_name: $expect_out(buffer)\n"
+	}
+}
+
+set timeout $save_timeout
+
+# set up a basic database
+set testdata_01 {
+	{"n\n" "owner:" "schmidt\n" "hamster name:" "baggins\n" "treats:" "17\n" "Commands:" }
+	{"n\n" "owner:" "mueller\n" "hamster name:" "mueller\n" "treats:" "22\n" "Commands:" }
+	{"n\n" "owner:" "meier\n"   "hamster name:" "meier\n"   "treats:" "0\n"  "Commands:" }
+}
+
+dialog tool $testdata_01
+
+# send "q" to end the program
+set spawn_id $cliclient_id
+send "q\n"
+wait

@@ -1,0 +1,57 @@
+#
+# Test publishing to /pension/hamster/ID/position topic:
+#
+# Go through the four positions and see if properly published
+#
+set test_name "publish position"
+
+#puts "now starting:mosquitto_sub -h $host -t \"/pension/hamster/$hamster_uuid/position\" -u admin"
+#after 5000 
+
+# set up mosquitto_sub to listen to /pension/hamster/ID/position:
+spawn mosquitto_sub -h $host -t "/pension/hamster/$hamster_uuid/position" -u admin
+set position_id $spawn_id
+
+# start program with given ID
+spawn ./$tool -i $hamster_uuid -s $host
+set hamster_id $spawn_id
+
+
+set testdata {
+  {"D\n"      "D" }
+  {"A\n"      "A"  }
+  {"B\n"      "B"   }
+  {"C\n"      "C"  }
+}
+
+foreach pattern $testdata {
+    set inputs [lindex $pattern 0]
+    set outputs [lindex $pattern 1]
+
+	# puts "sending $inputs, expecting $outputs"
+	# send command to put the hamster into the desired stat
+	set spawn_id $hamster_id
+	send $inputs
+
+	# read from mosquitto_sub
+	set spawn_id $position_id
+	expect {
+		timeout {
+			fail "$test_name: timeout\n"
+		}	
+		eof {
+			fail "$test_name: unexpected EOF\n"
+		}
+		"$outputs" {
+			pass "$test_name: assumed $outputs position\n"
+		}
+		default {
+			fail "$test_name: unexpected response waiting for $outputs\n"
+		}
+	}
+}
+
+# send "q" to end the program
+set spawn_id $hamster_id
+send "q\n"
+wait

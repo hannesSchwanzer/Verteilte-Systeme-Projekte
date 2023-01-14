@@ -1,0 +1,30 @@
+topic readwrite /Test
+topic read /#
+
+user hamster
+topic read /#
+topic readwrite /Test
+topic readwrite /pension/livestock
+pattern readwrite /pension/hamster/%c
+pattern readwrite /pension/hamster/%c/wheels
+pattern readwrite /pension/hamster/%c/state
+pattern readwrite /pension/hamster/%c/position
+
+pattern read /pension/hamster/%c/punish
+pattern read /pension/hamster/%c/fondle
+topic read /pension/room/+
+topic read /pension/wheel/+
+
+user admin
+topic read /#
+topic readwrite /Test
+topic readwrite /pension/hamster/+/punish
+topic readwrite /pension/hamster/+/fondle
+topic readwrite /pension/room/A
+topic readwrite /pension/room/B
+topic readwrite /pension/room/C
+topic readwrite /pension/room/D
+topic readwrite /pension/wheel/A
+topic readwrite /pension/wheel/B
+topic readwrite /pension/wheel/C
+

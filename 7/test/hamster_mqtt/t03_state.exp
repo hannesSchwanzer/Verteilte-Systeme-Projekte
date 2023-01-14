@@ -1,0 +1,57 @@
+#
+# Test publishing to /pension/hamster/ID/state topic:
+#
+# Go through the four states and see if properly published
+#
+set test_name "publish state"
+
+#puts "now starting:mosquitto_sub -h $host -t \"/pension/hamster/$hamster_uuid/state\" -u admin"
+#after 5000 
+
+# set up mosquitto_sub to listen to /pension/hamster/ID/state:
+spawn mosquitto_sub -h $host -t "/pension/hamster/$hamster_uuid/state" -u admin
+set state_id $spawn_id
+
+# start program with given ID
+spawn ./$tool -i $hamster_uuid -s $host
+set hamster_id $spawn_id
+
+
+set testdata {
+  {"s\n"      "SLEEPING" }
+  {"r\n"      "RUNNING"  }
+  {"e\n"      "EATING"   }
+  {"m\n"      "MATEING"  }
+}
+
+foreach pattern $testdata {
+    set inputs [lindex $pattern 0]
+    set outputs [lindex $pattern 1]
+
+	# puts "sending $inputs, expecting $outputs"
+	# send command to put the hamster into the desired stat
+	set spawn_id $hamster_id
+	send $inputs
+
+	# read from mosquitto_sub
+	set spawn_id $state_id
+	expect {
+		timeout {
+			fail "$test_name: timeout\n"
+		}	
+		eof {
+			fail "$test_name: unexpected EOF\n"
+		}
+		-nocase "$outputs" {
+			pass "$test_name: assumed $outputs state\n"
+		}
+		default {
+			fail "$test_name: unexpected response waiting for $outputs\n"
+		}
+	}
+}
+
+# send "q" to end the program
+set spawn_id $hamster_id
+send "q\n"
+wait

@@ -1,0 +1,50 @@
+#
+# Test operation on data:
+#
+set test_name "Data tests"
+
+set testdata_03 {
+	{"-l motzki"                    "[Nn]o*[Hh]amster*found"  "Failure" "unbek Kunde -> kein Fehler"}
+	{"-b schmidt"                   "schmidt*17"              "Success" "Fehler"}
+	{"-b mueller"                   "mueller*18"              "Success" "Fehler"}
+	{"-l mueller"                   "[Nn]o*[Hh]amster*found"  "Failure" "keine Hamster, trotzdem Anzeige"}
+	{"-n Paus Backenbube"           "Done"                    "Success" "Fehler"}
+	{"-n Paus Backenbube"           "Error"                   "Failure" "Hamster schon da -> kein Fehler"}
+	{"-n meier meier"               "Done"                    "Success" "Fehler"}
+	{"-n mueller mueller"           "Done"                    "Success" "Fehler"}
+	{"-n meier meier"               "Error"                   "Failure" "Hamster schon da -> kein Fehler"}
+	{"-n mueller mueller"           "Error"                   "Failure" "Hamster schon da -> kein Fehler"}
+	{"-f Blott OnTheLandscape 222"  "[Nn]ot*[Ff]ound"         "Failure" "Hamster nicht gefunden"}
+	{"-s Blott OnTheLandscape"      "[Nn]ot*[Ff]ound"         "Failure" "Hamster nicht gefunden"}
+	{"-b Blott"                     "[Nn]ot*[Ff]ound"         "Failure" "Hamster oder Kunde nicht gefunden"}
+}
+
+foreach pattern $testdata_03 {
+    set inputs [lindex $pattern 0]
+    eval exp_spawn $HMSTR {*}$inputs
+    set ret [exp_wait]
+	set exit_status [lindex $ret 3]
+
+	if {$exit_status != 0 } {
+		if { [lindex $pattern 2] == "Failure" } {
+			xfail "$tool $inputs EXIT_FAILURE"
+		} else {
+			fail "$tool $inputs EXIT_FAILURE"
+		}
+	} else {
+		expect {
+			-gl [lindex $pattern 1] {
+				pass "$tool $inputs"
+			}
+			eof {
+				if { [lindex $pattern 1] == "Done" } {
+					pass "$tool $inputs"
+				} else {
+					fail "$tool $inputs"
+				}
+			}
+			"Usage:" { fail "$tool Unexpected RTFM\n" }
+			default { fail "$tool $inputs" }
+		}
+	}
+}

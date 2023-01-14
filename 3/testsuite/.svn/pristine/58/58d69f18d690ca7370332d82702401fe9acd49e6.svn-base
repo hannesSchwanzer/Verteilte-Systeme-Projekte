@@ -1,0 +1,49 @@
+#
+# Test RTFM function:
+#
+# Calling the program with "-x" (bad option)
+# should return a string containing the word "Usage:"
+#
+set test_name "RTFM"
+# 1 second timeout should be OK...
+set timeout 1
+
+exec rm -f hamsterfile.dat
+
+set testdata {
+  {"-x"      "Usage:" }
+  {"-?"      "Usage:" }
+  {"-p blah" "Usage:" }
+  {"-h blah" "Usage:" }
+}
+
+foreach pattern $testdata {
+    set inputs [lindex $pattern 0]
+    eval exp_spawn $HMSTR {*}$inputs
+
+	set check_exit 0
+	expect {
+		-re [lindex $pattern 1] {
+			pass "$tool $inputs"
+		}
+		timeout {
+			puts "$tool $inputs"
+			fail "$tool $inputs"
+			exp_close
+		}
+		default { 
+			set check_exit 1
+		}
+	}
+    set ret [exp_wait]
+	set exit_status [lindex $ret 3]
+
+	# if unexpected response but at least exit status != 0, accept as XFAIL
+	if { $check_exit != 0 } {
+		if { $exit_status != 0 } {
+			xfail "$tool $inputs EXIT_FAILURE"
+		} else {
+			fail "$tool $inputs" 
+		}
+	}
+}

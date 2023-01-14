@@ -1,0 +1,48 @@
+#
+# Test encrypted communication on /pension/livestock topic:
+#
+# Just calling the program with "-i <id>" should publish
+# <id> under the /pension/livestock topic:
+#
+set test_name "authentication"
+
+set hamster_uuid [ expr {int(rand()*1000000)} ]
+puts "Hamster UUID is $hamster_uuid"
+
+# set up mosquitto_sub to listen to /pension/livestock:
+spawn mosquitto_sub -h $host -t "/pension/livestock" -u admin
+set livestock_id $spawn_id
+
+# start program with given ID, use options for encryption
+spawn ./$tool -i $hamster_uuid -s $host -p 8884 -V
+set hamster_id $spawn_id
+
+# read from mosquitto_sub
+set spawn_id $livestock_id
+expect  {
+	timeout {
+		fail "$test_name: timeout\n"
+	}	
+    Warning {
+        fail "$test_name: warning: $expect_out(buffer)"
+    }
+    # Check for any error messages
+    ERROR {
+        fail "$test_name: error: $expect_out(buffer)"
+    }
+
+	"$hamster_uuid" {
+		pass "$test_name\n"
+	}
+	eof {
+		fail "$test_name: unexpected EOF\n"
+	}
+	default {
+		fail "$test_name: $expect_out(buffer)\n"
+	}
+}
+
+# send "q" to end the program
+set spawn_id $hamster_id
+send "q\n"
+wait

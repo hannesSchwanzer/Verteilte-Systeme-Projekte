@@ -1,0 +1,40 @@
+#
+# Test operation in case of too long names:
+#
+set test_name "Long names "
+
+set testdata_04 {
+	{"-l Ludovic_Freihherr_von_Knoblauch_zu_Hatzbach"  "Error*too*long" "Langer Name -> kein Fehler"}
+	{"-n Ludovic_Freihherr_von_Knoblauch_zu_Hatzbach Paus_Backenbube_von_Knoblauch_zu_Hatzbach" "Error*too*long" "zwei Lange Namen -> kein Fehler"}
+	{"-n Ludovic_Freihherr_von_Knoblauch_zu_Hatzbach Paus_Backenbube" "Error*too*long" "Langer Name -> kein Fehler"}
+	{"-n Ludo Paus_Backenbube_von_Knoblauch_zu_Hatzbach" "Error*too*long" "Langer Name -> kein Fehler"}
+	{"-f Ludovic_Freihherr_von_Knoblauch_zu_Hatzbach Paus_Backenbube_von_Knoblauch_zu_Hatzbach 234" "Error*too*long" "zwei Lange Namen -> kein Fehler"}
+	{"-f Ludovic_Freihherr_von_Knoblauch_zu_Hatzbach Paus_Backenbube 567" "Error*too*long" "Langer Name -> kein Fehler"}
+	{"-f Ludo Paus_Backenbube_von_Knoblauch_zu_Hatzbach 789" "Error*too*long" "Langer Name -> kein Fehler"}
+	{"-s Ludovic_Freihherr_von_Knoblauch_zu_Hatzbach Paus_Backenbube_von_Knoblauch_zu_Hatzbach" "Error*too*long" "zwei Lange Namen -> kein Fehler"}
+	{"-s Ludovic_Freihherr_von_Knoblauch_zu_Hatzbach Paus_Backenbube" "Error*too*long" "Langer Name -> kein Fehler"}
+	{"-s Ludo Paus_Backenbube_von_Knoblauch_zu_Hatzbach" "Error*too*long" "Langer Name -> kein Fehler"}
+	{"-b Ludovic_Freihherr_von_Knoblauch_zu_Hatzbach" "Error*too*long" "Langer Name -> kein Fehler"}
+}
+
+foreach pattern $testdata_04 {
+    set inputs [lindex $pattern 0]
+    eval exp_spawn $HMSTR {*}$inputs
+    set ret [exp_wait]
+	set exit_status [lindex $ret 3]
+
+	if {$exit_status != 0 } {
+		xfail "$tool $inputs EXIT_FAILURE"
+	} else {
+		expect {
+			-gl [lindex $pattern 1] {
+				pass "$tool $inputs"
+			}
+			eof {
+				fail "$tool $inputs"
+			}
+			"Usage:" { fail "$tool Unexpected RTFM\n" }
+			default { fail "$tool $inputs" }
+		}
+	}
+}

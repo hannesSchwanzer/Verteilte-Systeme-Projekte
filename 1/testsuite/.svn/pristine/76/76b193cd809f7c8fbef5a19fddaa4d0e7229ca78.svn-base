@@ -1,0 +1,32 @@
+#
+# Test RTFM function:
+#
+# Calling the program without any options or with "-x" (bad option)
+# should return a string containing the word "Usage:"
+#
+set test_name "RTFM"
+
+exec rm -f hamsterfile.dat
+
+set testdata {
+  {""        "Usage:" }
+  {"-x"      "Usage:" }
+}
+
+foreach pattern $testdata {
+    set inputs [lindex $pattern 0]
+    eval exp_spawn $HMSTR {*}$inputs
+    set ret [exp_wait]
+	set exit_status [lindex $ret 3]
+
+	if {$exit_status != 0 } {
+        fail "$tool $inputs EXIT_FAILURE"
+	} else {
+		expect {
+			-re [lindex $pattern 1] {
+				pass "$tool $inputs"
+			}
+			default { fail "$tool $inputs" }
+		}
+	}
+}

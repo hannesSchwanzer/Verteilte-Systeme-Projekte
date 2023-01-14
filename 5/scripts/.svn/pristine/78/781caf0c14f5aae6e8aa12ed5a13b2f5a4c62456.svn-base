@@ -1,0 +1,209 @@
+
+Commands:
+        q                           - quit
+        n                           - check in new hamster
+        b                           - collect hamsters
+        l                           - list all hamsters
+        s                           - show hamster status
+        f                           - feed hamster
+> checking in new hamster:
+        owner:         hamster name:         treats: OK
+
+Commands:
+        q                           - quit
+        n                           - check in new hamster
+        b                           - collect hamsters
+        l                           - list all hamsters
+        s                           - show hamster status
+        f                           - feed hamster
+> checking in new hamster:
+        owner:         hamster name:         treats: OK
+
+Commands:
+        q                           - quit
+        n                           - check in new hamster
+        b                           - collect hamsters
+        l                           - list all hamsters
+        s                           - show hamster status
+        f                           - feed hamster
+> checking in new hamster:
+        owner:         hamster name:         treats: OK
+
+Commands:
+        q                           - quit
+        n                           - check in new hamster
+        b                           - collect hamsters
+        l                           - list all hamsters
+        s                           - show hamster status
+        f                           - feed hamster
+> ====================================================================================================
+ID         Owner Name                      Hamster Name                    Price €      Treats left
+595693142  schmidt                         baggins                         17           17          
+1018087352 mueller                         mueller                         17           22          
+973081748  meier                           meier                           17           0           
+
+Commands:
+        q                           - quit
+        n                           - check in new hamster
+        b                           - collect hamsters
+        l                           - list all hamsters
+        s                           - show hamster status
+        f                           - feed hamster
+>         ID:         treats: Done! 14 treats remaining in store
+
+Commands:
+        q                           - quit
+        n                           - check in new hamster
+        b                           - collect hamsters
+        l                           - list all hamsters
+        s                           - show hamster status
+        f                           - feed hamster
+>         ID: return code: 0
+         Hamster State
+==================================
+treats left: 22
+rounds:      0
+cost:        18
+
+Commands:
+        q                           - quit
+        n                           - check in new hamster
+        b                           - collect hamsters
+        l                           - list all hamsters
+        s                           - show hamster status
+        f                           - feed hamster
+> collecting hamsters:
+        owner: return code: 17
+
+Commands:
+        q                           - quit
+        n                           - check in new hamster
+        b                           - collect hamsters
+        l                           - list all hamsters
+        s                           - show hamster status
+        f                           - feed hamster
+> ====================================================================================================
+ID         Owner Name                      Hamster Name                    Price €      Treats left
+595693142  schmidt                         baggins                         17           14          
+1018087352 mueller                         mueller                         18           22          
+
+Commands:
+        q                           - quit
+        n                           - check in new hamster
+        b                           - collect hamsters
+        l                           - list all hamsters
+        s                           - show hamster status
+        f                           - feed hamster
+> collecting hamsters:
+        owner: In function hmstr_collect(): Error: A hamster or hamster owner could not be found
+
+Commands:
+        q                           - quit
+        n                           - check in new hamster
+        b                           - collect hamsters
+        l                           - list all hamsters
+        s                           - show hamster status
+        f                           - feed hamster
+> collecting hamsters:
+        owner: return code: 17
+
+Commands:
+        q                           - quit
+        n                           - check in new hamster
+        b                           - collect hamsters
+        l                           - list all hamsters
+        s                           - show hamster status
+        f                           - feed hamster
+> ====================================================================================================
+ID         Owner Name                      Hamster Name                    Price €      Treats left
+1018087352 mueller                         mueller                         18           22          
+
+Commands:
+        q                           - quit
+        n                           - check in new hamster
+        b                           - collect hamsters
+        l                           - list all hamsters
+        s                           - show hamster status
+        f                           - feed hamster
+>         ID:         treats: Done! 0 treats remaining in store
+
+Commands:
+        q                           - quit
+        n                           - check in new hamster
+        b                           - collect hamsters
+        l                           - list all hamsters
+        s                           - show hamster status
+        f                           - feed hamster
+>         ID:         treats: Not a valid number, please try again: Not a valid number, please try again: Done! 0 treats remaining in store
+
+Commands:
+        q                           - quit
+        n                           - check in new hamster
+        b                           - collect hamsters
+        l                           - list all hamsters
+        s                           - show hamster status
+        f                           - feed hamster
+> ====================================================================================================
+ID         Owner Name                      Hamster Name                    Price €      Treats left
+1018087352 mueller                         mueller                         24           0           
+
+Commands:
+        q                           - quit
+        n                           - check in new hamster
+        b                           - collect hamsters
+        l                           - list all hamsters
+        s                           - show hamster status
+        f                           - feed hamster
+> checking in new hamster:
+        owner:         hamster name:         treats: OK
+
+Commands:
+        q                           - quit
+        n                           - check in new hamster
+        b                           - collect hamsters
+        l                           - list all hamsters
+        s                           - show hamster status
+        f                           - feed hamster
+> ====================================================================================================
+ID         Owner Name                      Hamster Name                    Price €      Treats left
+1018087352 mueller                         mueller                         24           0           
+19652464   Paus                            Backenbube                      17           1           
+
+Commands:
+        q                           - quit
+        n                           - check in new hamster
+        b                           - collect hamsters
+        l                           - list all hamsters
+        s                           - show hamster status
+        f                           - feed hamster
+> collecting hamsters:
+        owner: In function hmstr_collect(): Error: A hamster or hamster owner could not be found
+
+Commands:
+        q                           - quit
+        n                           - check in new hamster
+        b                           - collect hamsters
+        l                           - list all hamsters
+        s                           - show hamster status
+        f                           - feed hamster
+> collecting hamsters:
+        owner: return code: 24
+
+Commands:
+        q                           - quit
+        n                           - check in new hamster
+        b                           - collect hamsters
+        l                           - list all hamsters
+        s                           - show hamster status
+        f                           - feed hamster
+> collecting hamsters:
+        owner: return code: 17
+
+Commands:
+        q                           - quit
+        n                           - check in new hamster
+        b                           - collect hamsters
+        l                           - list all hamsters
+        s                           - show hamster status
+        f                           - feed hamster
+> quit

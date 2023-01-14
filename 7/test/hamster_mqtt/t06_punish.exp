@@ -1,0 +1,69 @@
+#
+# Test subscribe to /pension/hamster/ID/punish topic:
+#
+# Run program, publish manually, see if program responds
+#
+set test_name "subscribe punish"
+
+
+# start program with given ID
+# puts "calling: ./$tool -i $hamster_uuid -s $host"
+spawn ./$tool -i $hamster_uuid -s $host
+set hamster_id $spawn_id
+
+# wait a sec before expecting response
+after 1000
+
+set spawn_id $hamster_id
+expect {
+	timeout {
+		fail "$test_name: timeout waiting for menu\n"
+	}	
+	eof {
+		fail "$test_name: unexpected EOF waiting for menu\n"
+	}
+	"Commands:" {
+			pass "$test_name: Menu showing up\n"
+		}
+	default {
+		fail "$test_name: unexpected response waiting for $outputs\n"
+	}
+}
+
+
+# call mosquitto_pub to punish hamster:
+# puts "calling mosquitto_pub -h $host -t \"/pension/hamster/$hamster_uuid/punish\" -u admin -m punish"
+spawn mosquitto_pub -h $host -t "/pension/hamster/$hamster_uuid/punish" -u admin -m punish
+
+set spawn_id $hamster_id
+expect {
+	timeout {
+		fail "$test_name: timeout waiting for punish\n"
+	}
+	eof {
+		fail "$test_name: unexpected EOF waiting for punish\n"
+	}
+	-nocase "Ouch" {
+			pass "$test_name: Punish received: $expect_out(buffer)"
+	}
+	-nocase "Grrr" {
+			pass "$test_name: Punish received: $expect_out(buffer)"
+	}
+	-nocase "punish" {
+			pass "$test_name: Punish received: $expect_out(buffer)"
+	}
+	":-(" {
+			pass "$test_name: Punish received: $expect_out(buffer)"
+	}
+	-nocase "straf" {
+			pass "$test_name: Punish received: $expect_out(buffer)"
+	}
+	default {
+		fail "$test_name: unexpected response waiting for $outputs\n"
+	}
+}
+
+# send "q" to end the program
+set spawn_id $hamster_id
+send "q\n"
+wait

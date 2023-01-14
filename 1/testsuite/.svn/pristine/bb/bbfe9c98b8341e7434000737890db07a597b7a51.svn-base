@@ -1,0 +1,67 @@
+#
+# Test normal use operation:
+#
+set test_name "Normal use"
+
+# First set up a basic database
+set testdata_01 {
+	{"-n schmidt baggins 17" "Done"}
+	{"-n mueller mueller 22" "Done"}
+	{"-n meier meier" "Done"}
+}
+
+
+foreach pattern $testdata_01 {
+    set inputs [lindex $pattern 0]
+    eval exp_spawn $HMSTR {*}$inputs
+    set ret [exp_wait]
+	set exit_status [lindex $ret 3]
+
+	if {$exit_status != 0 } {
+        fail "$tool $inputs EXIT_FAILURE"
+	} else {
+		expect {
+			-re [lindex $pattern 1] {
+				pass "$tool $inputs"
+			}
+			"Usage:" { fail "$tool Unexpected RTFM\n" }
+			eof { pass "$tool $pattern" }
+			default { fail "$tool $inputs" }
+		}
+	}
+}
+
+# Now try -l, -f, -s and -b options, check if everything works as expected.
+# Also check for unexpected outputs:
+#    |Commandline Option    | What the output should contain (glob expression)    | What the output should *not* contain
+set testdata_01a {
+	{"-l"                   "schmidt*baggins*17*mueller*mueller*22*meier*meier*0" "Error"}
+	{"-l mueller"           "mueller*mueller*22"                                  "baggins"}
+	{"-f schmidt baggins 3" "*14*"                                                "mueller"}
+	{"-l schmidt"           "schmidt*baggins*14"                                  "meier"}
+	{"-s mueller mueller"   "mueller*mueller*22*18"                               "meier"}
+	{"-b meier"             "meier*17"                                            "mueller"}	
+	{"-l"                   "schmidt*baggins*17*14*mueller*mueller*18*22"         "meier"}
+}
+
+foreach pattern $testdata_01a {
+    set inputs [lindex $pattern 0]
+    eval exp_spawn $HMSTR {*}$inputs
+    set ret [exp_wait]
+	set exit_status [lindex $ret 3]
+
+	if {$exit_status != 0 } {
+        fail "$tool $inputs EXIT_FAILURE"
+	} else {
+		expect {
+			-re [lindex $pattern 2] {
+				fail "$tool $inputs Unexpected output"
+			}
+			-gl [lindex $pattern 1] {
+				pass "$tool $inputs"
+			}
+			"Usage:" { fail "$tool Unexpected RTFM\n" }
+			default { fail "$tool $inputs" }
+		}
+	}
+}

@@ -1,0 +1,52 @@
+#
+# Test behaviour for bad commands/options:
+#
+set test_name "Bad commands"
+
+# Now try -l, -f, -s and -b options, check if everything works as expected.
+# Also check for unexpected outputs:
+#    |Commandline Option    | What the output should contain (glob expression)    | What the output should *not* contain
+set testdata_02 {
+  {  ""                     "Usage"                                              "Success" "keine Option -> kein Fehler"}
+  {  "-u"                   "Usage"                                              "Success" "ungueltige Option -> kein Fehler"}
+  {  "-l blah blubb"        "Usage"                                              "Success" "zuviele args -> kein Fehler"}
+  {  "-n blah ratz 22 fatz" "Usage"                                              "Success" "zuviele args -> kein Fehler"}
+  {  "-n blah"              "Usage"                                              "Success" "zu wenige args -> kein Fehler"}
+  {  "-n"                   "Usage"                                              "Success" "keine args -> kein Fehler"}
+  {  "-n blah ratz fatz"    "[Nn]o*[Nn]umber"                                    "Success" "keine Zahl -> kein Fehler"}
+  {  "-f blah ratz 22 fatz" "Usage"                                              "Success" "zuviele args -> kein Fehler"}
+  {  "-f blah ratz"         "Usage"                                              "Success" "zu wenige args -> kein Fehler"}
+  {  "-f blah"              "Usage"                                              "Success" "zu wenige args -> kein Fehler"}
+  {  "-f"                   "Usage"                                              "Success" "keine args -> kein Fehler"}
+  {  "-f blah ratz fatz"    "[Nn]o*[Nn]umber"                                    "Success" "keine Zahl -> kein Fehler"}
+  {  "-s blah ratz fatz"    "Usage"                                              "Success" "zu viele args -> kein Fehler"}
+  {  "-s blah"              "Usage"                                              "Success" "zu wenige args -> kein Fehler"}
+  {  "-s"                   "Usage"                                              "Success" "keine args -> kein Fehler"}
+  {  "-b blah ratz"         "Usage"                                              "Success" "zu viele args -> kein Fehler"}
+  {  "-b"                   "Usage"                                              "Success" "keine args -> kein Fehler"}
+}
+
+
+foreach pattern $testdata_02 {
+    set inputs [lindex $pattern 0]
+    eval exp_spawn $HMSTR {*}$inputs
+    set ret [exp_wait]
+	set exit_status [lindex $ret 3]
+
+	if {$exit_status != 0 } {
+        xfail "$tool $inputs [lindex $pattern 3]"
+	} else {
+		expect {
+			-re [lindex $pattern 2] {
+				fail "$tool $inputs Unexpected output"
+			}
+			-gl [lindex $pattern 1] {
+				xfail "$tool $inputs [lindex $pattern 3]"
+			}
+			eof {
+				xfail "$tool $inputs [lindex $pattern 3]"
+			}
+			default { fail "$tool $inputs" }
+		}
+	}
+}

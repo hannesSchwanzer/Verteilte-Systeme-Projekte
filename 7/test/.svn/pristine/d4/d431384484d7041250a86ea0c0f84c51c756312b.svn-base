@@ -1,0 +1,23 @@
+#
+# Test RTFM function:
+#
+# Calling the program with "-h" should return a
+# string containing the words "Usage:" and "Options"
+#
+set test_name "RTFM"
+
+set testdata {
+  {"-h"      "Usage:" }
+  {"-h"      "Options:" }
+}
+
+foreach pattern $testdata {
+    set inputs [lindex $pattern 0]
+    spawn ./hamster_mqtt $inputs
+    expect {
+        -re [lindex $pattern 1] {
+            pass "$tool $inputs"
+        }
+        default { fail "$tool $inputs" }
+    }
+}

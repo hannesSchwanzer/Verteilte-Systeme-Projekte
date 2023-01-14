@@ -1,0 +1,8 @@
+request_handler.o: src/request_handler.c src/request_handler.h \
+ src/server_util.h include/hamsterprotocol.h include/hamsterlib.h \
+ include/hamsterlib.h
+hamster_server.o: src/hamster_server.c src/../include/hamsterlib.h \
+ include/hamsterprotocol.h include/hamsterlib.h src/server_util.h \
+ include/hamsterlib.h src/request_handler.h
+server_util.o: src/server_util.c src/server_util.h \
+ include/hamsterprotocol.h include/hamsterlib.h include/hamsterlib.h

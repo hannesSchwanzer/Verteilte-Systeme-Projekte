@@ -1,0 +1,126 @@
+#
+# Test encrypted communication on /pension/livestock topic:
+#
+# Just calling the program with "-i <id>" should publish
+# <id> under the /pension/livestock topic:
+#
+set test_name "encrypted communication"
+
+set hamster_uuid [ expr {int(rand()*1000000)} ]
+puts "Hamster UUID is $hamster_uuid"
+
+# set up mosquitto_sub to listen to /pension/livestock:
+spawn mosquitto_sub -h $host -t "/pension/livestock" -u admin
+set livestock_id $spawn_id
+
+# start program with given ID, use options for encryption
+spawn ./$tool -i $hamster_uuid -s $host -p 8883 -v
+set hamster_id $spawn_id
+
+# read from mosquitto_sub
+set spawn_id $livestock_id
+expect  {
+	timeout {
+		fail "$test_name: timeout\n"
+	}	
+	Warning {
+		fail "$test_name: warning: $expect_out(buffer)"
+	}
+	"$hamster_uuid" {
+		pass "$test_name"
+	}
+	eof {
+		fail "$test_name: unexpected EOF\n"
+	}
+	default {
+		fail "$test_name: $expect_out(buffer)\n"
+	}
+}
+
+# send "q" to end the program
+set spawn_id $hamster_id
+send "q\n"
+wait
+
+# rename files to put an invalid CA certificate in place
+exec mv certs/mqtt_ca.crt certs/saved_mqtt_ca.crt
+exec mv certs/fake_ca.crt certs/mqtt_ca.crt
+
+# Now run the same test once more, this time expecting failure:
+
+# set up mosquitto_sub to listen to /pension/livestock:
+spawn mosquitto_sub -h $host -t "/pension/livestock" -u admin
+set livestock_id $spawn_id
+
+after 500
+
+set flushed 0
+while { $flushed < 1 } {
+	expect  {
+		timeout { 
+			incr flushed
+		}	
+		-re "\[^\r]*\r\n" {
+			continue
+		}
+		eof {
+			fail "$test_name: unexpected EOF while flushing\n"
+		}
+		default {
+			fail "$test_name: $expect_out(buffer) while flushing\n"
+		}
+	}
+}
+
+
+
+# start program with given ID, use options for encryption
+spawn ./$tool -i $hamster_uuid -s $host -p 8883 -v
+set hamster_id $spawn_id
+
+# read from program
+expect  {
+	timeout {
+		xfail "$test_name: timeout when using wrong certificate"
+	}	
+	"certificate verify failed" {
+		xfail "$test_name: certificate verify"
+	}
+	"Commands:" {
+		fail "$test_name: Menu showing up in spite of wrong CA\n"
+	}
+	eof {
+		fail "$test_name: unexpected EOF\n"
+	}
+	default {
+		fail "$test_name: $expect_out(buffer)\n"
+	}
+}
+
+
+
+# read from mosquitto_sub
+set spawn_id $livestock_id
+expect  {
+	timeout {
+		xfail "$test_name: timeout when using wrong certificate"
+	}	
+	"$hamster_uuid" {
+		fail "$test_name: using wrong CA: should fail, but didn't\n"
+	}
+	eof {
+		fail "$test_name: unexpected EOF\n"
+	}
+	default {
+		fail "$test_name: $expect_out(buffer)\n"
+	}
+}
+
+# send "q" to end the program
+set spawn_id $hamster_id
+send "q\n"
+wait
+
+# undo renamings made above:
+exec mv certs/mqtt_ca.crt certs/fake_ca.crt
+exec mv certs/saved_mqtt_ca.crt certs/mqtt_ca.crt

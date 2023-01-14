@@ -1,0 +1,72 @@
+#
+# Test publishing to /pension/livestock topic:
+#
+# Just calling the program with "-i <id>" should publish
+# <id> under the /pension/livestock topic:
+#
+set test_name "publish livestock"
+
+
+# set up mosquitto_sub to listen to /pension/livestock:
+spawn mosquitto_sub -h $host -t "/pension/livestock" -u admin
+set livestock_id $spawn_id
+
+#
+# read away any stale output
+#
+
+set save_timeout $timeout
+set timeout 1
+set flushed 0
+while { $flushed < 1 } {
+	expect  {
+		timeout { 
+			incr flushed
+		}	
+		-re "\[^\r]*\r\n" {
+			continue
+		}
+		eof {
+			fail "$test_name: unexpected EOF while flushing\n"
+		}
+		default {
+			fail "$test_name: $expect_out(buffer) while flushing\n"
+		}
+	}
+}
+set timeout $save_timeout
+
+
+# start program with given ID
+spawn ./$tool -i $hamster_uuid -s $host
+set hamster_id $spawn_id
+
+# read from mosquitto_sub
+set spawn_id $livestock_id
+expect  {
+	timeout {
+		fail "$test_name: timeout\n"
+	}	
+    Warning {
+        fail "$test_name: warning: $expect_out(buffer)"
+    }
+    # Check for any error messages
+    ERROR {
+        fail "$test_name: error: $expect_out(buffer)"
+    }
+
+	"$hamster_uuid" {
+		pass "$test_name\n"
+	}
+	eof {
+		fail "$test_name: unexpected EOF\n"
+	}
+	default {
+		fail "$test_name: $expect_out(buffer)\n"
+	}
+}
+
+# send "q" to end the program
+set spawn_id $hamster_id
+send "q\n"
+wait
